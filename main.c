@@ -392,7 +392,7 @@ static int memcache_read(const char *path, char *buf, size_t size, off_t offset,
 {	
 
 
-	sem_wait(&mutex); 
+	//sem_wait(&mutex); 
 	printf("<read size: %d, off: %d, path: %s\n",(int)size,(int)offset,path);
 	long long hash = fi->fh;
 	
@@ -403,21 +403,21 @@ static int memcache_read(const char *path, char *buf, size_t size, off_t offset,
 	if(inode == NULL){
 		//struct inode * inode = inode_open(get_hash(path));
 		//fi->fh = get_hash(path);
-		sem_post(&mutex); 
+		//sem_post(&mutex); 
 		return -ENOENT;
 	}
 
 	if(inode->data.is_dir){
 		//printf("woops:(\n");
 		inode_close(inode);
-		sem_post(&mutex); 
+		//sem_post(&mutex); 
 		return -EISDIR;
 	}
 
 	int a = (int)inode_read_at(inode,buf,size,offset);
 	//inode_close(inode);
 	printf(">read size: %d, off: %d\n",(int)size,(int)offset);
-	sem_post(&mutex); 
+	//sem_post(&mutex); 
 	return a;
 
 	
@@ -440,6 +440,10 @@ static int memcache_write (const char * path, const char *buff, size_t size, off
 
 	if(inode->data.is_dir)
 		return -EISDIR;
+
+	if(fi->flags | O_TRUNC){
+		inode_truncate(inode);
+	}
 
 	if(fi->flags & O_APPEND){
 		//inode->data.length = size + offset;
@@ -538,8 +542,17 @@ static int memcache_access(const char * path, int mode){
 
 }
 
+static int memcache_flush (const char * path, struct fuse_file_info * fi){
+	return 0;
+}
 
+static int memcache_fsync (const char *path, int some, struct fuse_file_info * fi){
+	return 0;
+}
 
+static int memcache_fsyncdir (const char *path, int some, struct fuse_file_info * fi){
+	return 0;
+}
 
 
 
@@ -561,6 +574,9 @@ static struct fuse_operations hello_oper = {
 	.utimens    = memcache_utimens,
 	.chown = memcache_chown,
 	//.read_buf   =memcache_read_buf,
+	.flush = memcache_flush,
+	.fsync = memcache_fsync,
+	.fsyncdir = memcache_fsyncdir,
 
 };
 

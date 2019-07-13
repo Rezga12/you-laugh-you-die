@@ -237,6 +237,16 @@ off_t inode_write_at (struct inode *inode, const void *buffer_, off_t size,
     return bytes_w;
 }
 
+void inode_truncate(struct inode * inode){
+	for(int i=0;i<inode->data.num_sectors;i++){
+		mem_block_remove(inode->hash,i);
+	}
+
+	inode->data.length = 0;
+
+	mem_set_inode(inode->hash,&inode->data);
+}
+
 
 int inodes_num(){
 

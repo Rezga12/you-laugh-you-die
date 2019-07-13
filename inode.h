@@ -10,6 +10,8 @@ struct inode_disk{
     int num_sectors;            
     bool is_dir;
     mode_t mode;
+    uid_t uid;
+    gid_t gid;
 };
 
 
@@ -37,5 +39,7 @@ off_t inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 int inodes_num();
 struct inode * inode_find(long long hash);
 void inode_remove(struct inode *inode);
+
+void inode_truncate(struct inode * inode);
 
 #endif
