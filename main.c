@@ -455,7 +455,7 @@ static int memcache_read(const char *path, char *buf, size_t size, off_t offset,
 	if(inode->data.is_dir){
 		//printf("woops:(\n");
 		inode_close(inode);
-		
+
 		//sem_post(&mutex); 
 		return -EISDIR;
 	}
@@ -934,7 +934,55 @@ static int memcache_access(const char * path, int q_mode){
 	
 }
 
+static int memcache_setxattr (const char * path, const char * key, const char * value, size_t size, int flags){
+	long long hash = get_hash(path);
+	struct inode * inode = inode_open(hash);
 
+	if(inode == NULL){
+		return -ENOENT;
+	}
+
+	mem_setxattr(hash,key,value,size);
+	return 0;
+
+}
+
+static int memcache_getxattr(const char* path, const char* name, char* value, size_t size) {
+
+
+printf("getxattr: %s\n",path);
+
+	long long hash = get_hash(path);
+	struct inode * inode = inode_open(hash);
+
+	if(inode == NULL){
+		return -ENOENT;
+	}
+	
+	int a = mem_getxattr(hash,name,value);
+	printf("%d\n",a);
+
+	return a;
+	
+	
+	
+
+	
+}
+
+static int memcache_listxattr(const char* path, char * list, size_t size){
+
+	printf("listxattr %s\n",path);
+
+	return 0;
+}
+
+static int memcache_removexattr (const char * path, const char * key){
+
+	printf("removetxattr %s\n",path);
+
+	return 0;
+}
 
 
 static struct fuse_operations hello_oper = {
@@ -963,7 +1011,10 @@ static struct fuse_operations hello_oper = {
 	.link = memcache_link,
 	.symlink = memcache_symlink,
 	.readlink = memcache_readlink,
-
+	.setxattr = memcache_setxattr,
+	.listxattr = memcache_listxattr,
+	.removexattr = memcache_removexattr,
+	.getxattr = memcache_getxattr,
 };
 
 

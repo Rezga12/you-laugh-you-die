@@ -18,7 +18,7 @@ static int sock_fd;
 
 bool get(char * key, char * value);
 bool set(char * key, char * value);
-void send_set_request(char * key, int size, void * data);
+void send_set_request(char * key, int size, const void * data);
 void send_get_request(char * key);
 bool recieve_get_data(void * data);
 bool stored_success();
@@ -98,6 +98,7 @@ bool mem_block_write(char * path, int sector,void * block){
 bool mem_block_write(long long hash, int sector,void * block){
 
     char key[30];
+    bzero(key,30);
     make_block_key(hash,sector,key);
 
     return set(key,block);
@@ -105,8 +106,49 @@ bool mem_block_write(long long hash, int sector,void * block){
 
 }
 
+bool mem_setxattr(long long hash, const char * mkey, const char*value,size_t size){
+	char key[250];	
+	bzero(key,250);
+	sprintf(key,"%lld",hash);
+
+	strcat(key,"BB");
+	strcat(key,mkey);
+
+	send_set_request(key,size,value);
+
+	return stored_success();
+}
+
+int mem_getxattr(long long hash, const char * mkey, char*value){
+	char key[250];	
+	bzero(key,250);
+	sprintf(key,"%lld",hash);
+
+	strcat(key,"BB");
+	strcat(key,mkey);
+
+	//send_set_request(key,size,value);
+	send_get_request(key);
+
+	char buff[2048];
+	bzero(buff,2048);
+
+	recieve_get_data(buff);
+	int size = strlen(buff);
+	if(value == NULL){
+		
+	}else{
+		memcpy(value,buff,size);
+	}
+	return size;
+}
+
+
+
+
 bool mem_block_remove(long long hash, int index){
     char key[50];
+    bzero(key,50);
     make_block_key(hash,index,key);
     remove_hash(key);
 }
@@ -335,7 +377,7 @@ void mem_destroy(){
 }
 
 
-void send_set_request(char * key, int size, void * data){
+void send_set_request(char * key, int size, const void * data){
 
     char buff[1200] = "set ";
     strcat(buff,key);
@@ -392,6 +434,9 @@ bool recieve_get_data(void * data){
     }
 
     memcpy(data,buff+header_size,data_size);
+    //data[buff+header_size + data_size] = '\0';
+    //printf("YLEVAR: %d\n",data_size);
+
 
     return true;
 }

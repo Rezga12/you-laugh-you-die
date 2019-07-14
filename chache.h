@@ -29,6 +29,10 @@ bool mem_block_add(char * path,int sector);
 bool mem_inode_remove(long long hash);
 bool mem_block_remove(long long hash,int i);
 long long get_hash(const char * path);
+
+
+int mem_getxattr(long long hash, const char * mkey, char*value);
+bool mem_setxattr(long long hash, const char * mkey, const char*value,size_t size);
 //int mem_get_next_inumber();
 
 #endif
