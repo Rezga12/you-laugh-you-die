@@ -16,7 +16,8 @@ int main (int argc, char *argv[]){
 	memset(block,67,100000);
 
 	FILE *fp = fopen(argv[2], "w+");
-	for(int i=0;i<5000;i++){
+	for(int i=0;i<2000;i++){
+		//printf("asd\n");
 		fprintf(fp, "%s\n", block);
 	}
 	

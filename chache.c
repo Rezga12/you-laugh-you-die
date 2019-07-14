@@ -348,7 +348,8 @@ void send_set_request(char * key, int size, void * data){
     strcat(buff,"\r\n");
 
     int pos = strlen(buff);
-
+    struct inode_disk* in = (struct inode_disk*)data;
+    //printf("SENDING REQUEST GID: %d\n",in->gid);
     memcpy(buff+pos,data,size);
     strcat(buff+pos+size,"\r\n");
 

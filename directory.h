@@ -22,7 +22,7 @@ struct dir_entry
     bool in_use;                        /* In use or free? */
   };
 
-bool dir_create(long long hash, int entry_cnt, mode_t mode);
+bool dir_create(long long hash, int entry_cnt, mode_t mode, uid_t uid, gid_t gid);
 struct dir * dir_open (struct inode *inode);
 bool dir_add (struct dir *dir, const char *name, long long hash);
 bool dir_readdir (struct dir *dir, char * name);

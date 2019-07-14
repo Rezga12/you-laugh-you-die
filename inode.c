@@ -1,3 +1,5 @@
+#include <unistd.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +15,7 @@ static struct list * list;
 
 bool cmp_inode(long long a, void * b);
 
-bool inode_create(long long hash,int length,bool is_dir, mode_t mode){
+bool inode_create(long long hash, int length, bool is_dir, mode_t mode, uid_t uid, gid_t gid){
 
 	struct inode_disk inode;
 	inode.length = length;
@@ -27,6 +29,14 @@ bool inode_create(long long hash,int length,bool is_dir, mode_t mode){
 		mem_block_write(hash,i,block);
 	}
 	inode.is_dir = is_dir;
+	inode.uid = uid;
+	inode.gid = gid;
+	printf("creating boi\n");
+	inode.nlink = 1;
+	inode.is_hard = false;
+	inode.is_sym = false;
+
+	//printf("group id: %d\n",inode.gid );
 
 	return mem_set_inode(hash,&inode);
 

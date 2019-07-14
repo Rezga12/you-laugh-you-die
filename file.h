@@ -11,9 +11,9 @@ struct file{
 };
 
 
-bool file_create(long long hash,mode_t mode);
+bool file_create(long long hash,mode_t mode, uid_t uid, gid_t gid);
 struct file * file_open(struct inode * inode);
-
+bool symlink_create(long long hash,mode_t mode, uid_t uid, gid_t gid, const char * path);
 
 
 

@@ -28,4 +28,4 @@ file.o : file.c file.h
 	$(CC) -c file.c $(FLAGS)
 
 clean :
-	rm cachefs main.o chache.o inode.o directory.o list.c file.c
+	rm cachefs main.o chache.o inode.o directory.o list.o file.o

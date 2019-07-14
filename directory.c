@@ -7,9 +7,9 @@
 
 
 
-bool dir_create(long long hash, int entry_cnt, mode_t mode){
+bool dir_create(long long hash, int entry_cnt, mode_t mode, uid_t uid, gid_t gid){
 	//printf("%d\n",(int)sizeof(struct dir_entry)*entry_cnt);
-	return inode_create(hash, (int)sizeof(struct dir_entry)*entry_cnt,true, mode);
+	return inode_create(hash, (int)sizeof(struct dir_entry)*entry_cnt,true, mode,  uid,  gid);
 
 }
 

@@ -12,6 +12,12 @@ struct inode_disk{
     mode_t mode;
     uid_t uid;
     gid_t gid;
+
+    bool is_hard;
+    bool is_sym;
+    long long real_hash;
+
+    nlink_t   nlink;
 };
 
 
@@ -25,7 +31,7 @@ struct inode
     struct inode_disk data;             /* Inode content. */
 };
 
-bool inode_create(long long hash,int length,bool is_dir,mode_t mode);
+bool inode_create(long long hash, int length, bool is_dir, mode_t mode, uid_t uid, gid_t gid);
 void inode_init();
 struct inode * inode_open(long long hash);
 void inode_close (struct inode *inode);

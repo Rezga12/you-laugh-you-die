@@ -55,7 +55,7 @@ write_GB(){
     echo "Test 3 : Writing 1 GB Data"
     
     START=$(date +%s.%N)
-    for i in $(seq 1 1024);
+    for i in $(seq 1 900);
     do
         echo $MB >> "GB_test.txt"
     done;
