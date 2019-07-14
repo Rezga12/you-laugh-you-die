@@ -127,7 +127,7 @@ static int hello_getattr(const char *path, struct stat *st,
 	st->st_blocks = inode->data.num_sectors;      /* Number of 512B blocks allocated */
 
 
-	printf();
+	//printf();
 
 	if(inode->data.is_dir){
 		st->st_mode = S_IFDIR | st->st_mode;
@@ -455,6 +455,7 @@ static int memcache_read(const char *path, char *buf, size_t size, off_t offset,
 	if(inode->data.is_dir){
 		//printf("woops:(\n");
 		inode_close(inode);
+		
 		//sem_post(&mutex); 
 		return -EISDIR;
 	}
@@ -776,11 +777,11 @@ static int memcache_fsyncdir (const char *path, int some, struct fuse_file_info 
 static int memcache_symlink(const char * old_path, const char * new_path){
 
 	long long hash = get_hash(new_path);
-	long long old_hash = get_hash(old_path);
+	//long long old_hash = get_hash(old_path);
 	long long parent_hash;
 
 	struct inode * new_inode = inode_open(hash);
-	struct inode * old_inode = inode_open(old_hash);
+	//struct inode * old_inode = inode_open(old_hash);
 
 	printf("symlink %s\n",old_path);
 	printf("symlink %s\n",new_path);
@@ -789,10 +790,10 @@ static int memcache_symlink(const char * old_path, const char * new_path){
 		return -EEXIST;
 	}
 
-	if(old_inode == NULL){
+	/*if(old_inode == NULL){
 		printf("strange symlink: %lld\n",old_hash);
 		return -ENOENT;
-	}
+	}*/
 
 	char without_last[20480];
 	bzero(without_last,20480);
@@ -812,7 +813,7 @@ static int memcache_symlink(const char * old_path, const char * new_path){
 
 	struct dir * parent = dir_open(inode_open(parent_hash));
 	struct fuse_context * context = fuse_get_context();
-	ASSERT(symlink_create(hash,ACCESSPERMS,context->uid,context->gid,new_path));
+	ASSERT(symlink_create(hash,ACCESSPERMS,context->uid,context->gid,old_path));
 
 	//new_inode = inode_open(hash);
 
@@ -826,21 +827,32 @@ static int memcache_symlink(const char * old_path, const char * new_path){
 	
 }
 
-static int memcache_readlink(const char * old_path, char * buff, size_t size){
+static int memcache_readlink(const char * path, char * buff, size_t size){
 
-	printf("readlink: %d\n",(int)size);
 
+	printf("readlink path: %s\n",path);
+
+	struct inode * inode = inode_open(get_hash(path));
+
+	if(inode == NULL){
+		printf("aaaa\n");
+		return -ENOENT;
+	}
+
+	bzero(buff,size);
+	int a = inode_read_at(inode,buff,size,0);
+	//printf("needed: %d, actual: %d\n",(int)size,a);
+	//printf("buff: %s\n",buff);
 	return 0;
+
+	
 }
 
 
 
+int access_helper(const char * path, int q_mode){
 
-
-
-static int memcache_access(const char * path, int q_mode){
-
-	printf("access: %s\n",path);
+	printf("access_helper: %s\n",path);
 
 	struct inode * inode = inode_open(get_hash(path));
 
@@ -899,6 +911,27 @@ static int memcache_access(const char * path, int q_mode){
 	
 
 	return 0;
+}
+
+
+static int memcache_access(const char * path, int q_mode){
+
+	printf("access: %s\n",path);
+
+	for(int i=1;i<strlen(path);i++){
+		if(path[i] == '/'){
+			char path_to_check[260];
+			bzero(path_to_check,260);
+			strncpy(path_to_check,path,i - 1);
+			if(access(path_to_check,F_OK | R_OK)){
+				return -EACCES;
+			}
+		}
+	}
+
+	return access_helper(path,q_mode);
+
+	
 }
 
 
